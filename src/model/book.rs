@@ -1,5 +1,5 @@
 use serde::{
-    de::{SeqAccess, Visitor},
+    de::{self, SeqAccess, Visitor},
     ser::SerializeTuple,
     Deserialize, Deserializer, Serialize, Serializer,
 };
@@ -63,15 +63,19 @@ impl<'de> Visitor<'de> for OfferVisitor {
     where
         M: SeqAccess<'de>,
     {
-        let price: f64 = seq
+        let price_str: String = seq
             .next_element()?
             .ok_or_else(|| serde::de::Error::custom("Missing price"))?;
-        let quantity: f64 = seq
+        let quantity_str: String = seq
             .next_element()?
             .ok_or_else(|| serde::de::Error::custom("Missing quantity"))?;
-        let amount: f64 = seq
+        let amount_str: String = seq
             .next_element()?
             .ok_or_else(|| serde::de::Error::custom("Missing amount"))?;
+
+        let price = price_str.parse::<f64>().map_err(de::Error::custom)?;
+        let quantity = quantity_str.parse::<f64>().map_err(de::Error::custom)?;
+        let amount = amount_str.parse::<f64>().map_err(de::Error::custom)?;
 
         Ok(Offer {
             price,
@@ -162,7 +166,7 @@ mod tests {
             }
         ]}";
         let book_result = from_str::<BookResult>(json).unwrap();
-        
+
         assert_eq!(book_result.instrument_name, "ETH_CRO");
         assert_eq!(book_result.depth, 150);
         assert_eq!(book_result.data.len(), 2);
