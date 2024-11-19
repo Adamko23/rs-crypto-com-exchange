@@ -1,10 +1,12 @@
-use serde::{Serialize};
+use serde::Serialize;
+use serde_json::Value;
 
 /// Parameters of a subscription
 #[derive(Serialize, Debug)]
 pub struct SubscribeParams {
     /// The channels to subscribe, for example 'user.order.ETH_CRO' 
-    pub channels: Vec<String>
+    pub channels: Vec<String>,
+    // pub params: Vec<Vec<String>>
 }
 
 /// Parameters of an unsubscription
@@ -31,7 +33,7 @@ pub enum Request {
         /// The exchange will response using this id, ideally it is unique
         id: u64,
         /// The actual subscription parameters
-        params: SubscribeParams,
+        params: Value,
         /// Millis since epoch
         nonce: u128,
     },
@@ -66,16 +68,16 @@ pub enum Request {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::to_string;
+    use serde_json::{json, to_string};
 
     #[test]
     fn check_subscribe_structure() {
         let hb = Request::Subscribe{
             id: 22,
             nonce: 18271187217812782,
-            params: SubscribeParams {
-                channels: vec!["channel1".into(), "channel2".into()]
-            }
+            params: json!({
+                "channels": ["channel1", "channel2"]
+            })
         };
         let text = to_string(&hb).unwrap();
         assert_eq!(text, "{\"method\":\"subscribe\",\"id\":22,\"params\":{\"channels\":[\"channel1\",\"channel2\"]},\"nonce\":18271187217812782}");

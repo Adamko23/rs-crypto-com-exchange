@@ -1,6 +1,5 @@
 use serde::{Serialize, Deserialize};
 use serde_aux::prelude::deserialize_number_from_string;
-use chrono::{DateTime, Utc, serde::ts_milliseconds};
 use std::fmt;
 
 // Main container of a candlestick
@@ -25,7 +24,7 @@ pub struct CandlestickResult {
     /// 7D : one week
     /// 14D : two weeks
     /// 1M : one month
-    pub interval: TimeFrame,
+    pub interval: String,
 
     /// Actual candlestick information
     pub data: Vec<Candlestick>
@@ -55,13 +54,11 @@ pub struct Candlestick {
     #[serde(rename = "v", deserialize_with = "deserialize_number_from_string")]
     pub volume: f32,
 
-    /// Update time
-    #[serde(rename = "ut", with = "ts_milliseconds")]
-    pub update_time: DateTime<Utc>,
+    #[serde(rename = "ut", deserialize_with = "deserialize_number_from_string")]
+    pub update_time: u64,
 
-    /// When the candlestick starts
-    #[serde(rename = "t", with = "ts_milliseconds")]
-    pub start_time: DateTime<Utc>
+    #[serde(rename = "t", deserialize_with = "deserialize_number_from_string")]
+    pub start_time: u64,
 }
 
 #[derive(Serialize,Deserialize, Debug)]
@@ -174,8 +171,8 @@ mod tests {
         assert_eq!(data.high, 161.96);
         assert_eq!(data.low, 161.98);
         assert_eq!(data.volume, 336.452694);
-        assert_eq!(data.start_time, DateTime::parse_from_rfc3339("2020-05-14T08:00:41+00:00").unwrap());
-        assert_eq!(data.update_time, DateTime::parse_from_rfc3339("2020-05-14T08:00:42+00:00").unwrap());
+        assert_eq!(data.start_time, 1589443241000);
+        assert_eq!(data.update_time, 1589443242000);
         
     }
 }

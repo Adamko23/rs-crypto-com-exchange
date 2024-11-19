@@ -1,6 +1,5 @@
 use serde::{Serialize, Deserialize};
 use serde_aux::prelude::deserialize_number_from_string;
-use chrono::{DateTime, Utc, serde::ts_milliseconds};
 
 // Main container of a trade
 #[derive(Serialize, Deserialize, Debug)]
@@ -35,8 +34,8 @@ pub struct Trade {
     pub id: u64,
 
     /// Time
-    #[serde(rename = "t", with = "ts_milliseconds")]
-    pub time: DateTime<Utc>,
+    #[serde(rename = "t", deserialize_with = "deserialize_number_from_string")]
+    pub time: u64,
 }
 
 #[derive(Serialize,Deserialize, Debug, PartialEq)]
@@ -75,7 +74,7 @@ mod tests {
               {
                 \"p\": 162.12,
                 \"q\": 11.085,
-                \"s\": \"buy\",
+                \"s\": \"BUY\",
                 \"d\": 1210447366,
                 \"t\": 1587523078844,
                 \"dataTime\": 0
@@ -83,7 +82,7 @@ mod tests {
               {
                 \"p\": 1162.12,
                 \"q\": 111.085,
-                \"s\": \"sell\",
+                \"s\": \"SELL\",
                 \"d\": 11210447366,
                 \"t\": 11587523078844,
                 \"dataTime\": 0
@@ -99,14 +98,14 @@ mod tests {
         let data = &ticker_result.data[0];
         assert_eq!(data.price, 162.12);
         assert_eq!(data.quantity, 11.085);
-        assert_eq!(data.side, "buy");
+        assert_eq!(data.side, Side::Buy);
         assert_eq!(data.id, 1210447366);
         assert_eq!(data.time, 1587523078844);
 
         let data2 = &ticker_result.data[1];
         assert_eq!(data2.price, 1162.12);
         assert_eq!(data2.quantity, 111.085);
-        assert_eq!(data2.side, "sell");
+        assert_eq!(data2.side, Side::Sell);
         assert_eq!(data2.id, 11210447366);
         assert_eq!(data2.time, 11587523078844);
         

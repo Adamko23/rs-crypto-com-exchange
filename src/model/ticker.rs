@@ -1,5 +1,5 @@
-use chrono::{DateTime, Utc, serde::ts_milliseconds};
 use serde::{Serialize, Deserialize};
+use serde_aux::prelude::deserialize_number_from_string;
 
 // Main container of a ticker
 #[derive(Serialize, Deserialize, Debug)]
@@ -50,8 +50,8 @@ pub struct Ticker {
     pub change: f32,
 
     /// update time
-    #[serde(rename = "t", with = "ts_milliseconds")]
-    pub time: DateTime<Utc>,
+    #[serde(rename = "t", deserialize_with = "deserialize_number_from_string")]
+    pub time: u64,
 }
 
 #[cfg(test)]
